@@ -58,17 +58,23 @@ uint32_t reseedRandomSeed EEMEM = 0xFFFFFFFF;
 // -----------------------------------------------------------------------------------------------
 
 // Dices type variables
-const uint8_t all_dices = 8;
-uint8_t dices[all_dices][2] = { { 4, 0 },
+const uint8_t all_dices = 14;
+uint8_t dices[all_dices][2] = { { 3, 0 },
+                                { 4, 0 },
+                                { 5, 0 },
                                 { 6, 0 },
                                 { 8, 0 },
                                 { 10, 0 },
                                 { 10, 0 },
                                 { 12, 0 },
+                                { 16, 0 },
                                 { 20, 0 },
-                                { 100, 0 } };
+                                { 24, 0 },
+                                { 48, 0 },
+                                { 100, 0 },
+                                { 120, 0 } };
 int results = 0;
-int sum_results = 0;
+long sum_results = 0;
 int last_sum_results = 0;
 int single_roll = 0;
 
@@ -78,7 +84,7 @@ int TIMEOUT = 10000;
 
 // Buzzer variables
 const uint8_t PIN_BUZZER = 7;
-const int FREQUENCY = 250;
+const int FREQUENCY = 100;
 
 // Touch sensor pin
 const uint8_t PIN_TOUCH = A3;
@@ -107,7 +113,7 @@ void isr() {
       virtual_position--;
       if (select_dice) {
         if (virtual_position < 0) {
-          virtual_position = 7;
+          virtual_position = all_dices - 1;
         }
       }
       if (number_dice) {
@@ -118,7 +124,7 @@ void isr() {
     } else {
       virtual_position++;
       if (select_dice) {
-        if (virtual_position > 7) {
+        if (virtual_position > all_dices - 1) {
           virtual_position = 0;
         }
       }
@@ -491,7 +497,7 @@ void loop(void) {
         Serial.print("D");
         Serial.print(dices[i][0]);
         for (uint8_t j = 0; j < dices[i][1]; j++) {
-          if (i == 4) {
+          if (i == 6) {
             results = random(1, dices[i][0] + 1);
             results = results * 10;
           } else {
@@ -545,7 +551,7 @@ void loop(void) {
     }
     delay(100);
 
-  } else { // If in configuration mode
+  } else {  // If in configuration mode
     display.clear();
 
     // Checks if rotary encoder button is pressed to change configuration being made
@@ -598,7 +604,7 @@ void loop(void) {
       display.printFixed(0, 10, "D", STYLE_NORMAL);
       display.setTextCursor(15, 10);
       display.print(dices[virtual_position][0]);
-      if (virtual_position == 4) {
+      if (virtual_position == 6) {
         display.printFixed(35, 10, "%", STYLE_NORMAL);
       }
       display.setFixedFont(ssd1306xled_font6x8);
@@ -607,7 +613,6 @@ void loop(void) {
       display.printFixed(0, 40, "*", STYLE_NORMAL);
       display.setTextCursor(15, 40);
       display.print(dices[virtual_position][1]);
-
     }
 
     // If selecting number os dices
@@ -619,7 +624,7 @@ void loop(void) {
       display.printFixed(0, 10, "D", STYLE_NORMAL);
       display.setTextCursor(15, 10);
       display.print(dices[last_virtual_position][0]);
-      if (last_virtual_position == 4) {
+      if (last_virtual_position == 6) {
         display.printFixed(35, 10, "%", STYLE_NORMAL);
       }
       display.setFixedFont(ssd1306xled_font6x8);
@@ -628,7 +633,6 @@ void loop(void) {
       display.printFixed(0, 40, "*", STYLE_NORMAL);
       display.setTextCursor(15, 40);
       display.print(virtual_position);
-
     }
     delay(500);
   }
