@@ -77,6 +77,7 @@ int results = 0;
 long sum_results = 0;
 int last_sum_results = 0;
 int single_roll = 0;
+int max_dices = 20;
 
 // Display on timeout variables
 unsigned long last_update = 0;
@@ -100,6 +101,7 @@ bool number_dice = false;
 // Updated by the ISR
 volatile int virtual_position = 0;
 int last_virtual_position = 0;
+int last_select_dice = 0;
 
 // -----------------------------------------------------------------------------------------------
 // Encoder reading function
@@ -118,7 +120,7 @@ void isr() {
       }
       if (number_dice) {
         if (virtual_position < 0) {
-          virtual_position = 10;
+          virtual_position = max_dices;
         }
       }
     } else {
@@ -129,7 +131,7 @@ void isr() {
         }
       }
       if (number_dice) {
-        if (virtual_position > 10) {
+        if (virtual_position > max_dices) {
           virtual_position = 0;
         }
       }
@@ -139,6 +141,66 @@ void isr() {
     lastInterruptTime = interruptTime;
   }
 }
+// -----------------------------------------------------------------------------------------------
+/*****************************************************************************
+ * R2-D2 Sound Generator
+ * Reference: https://github.com/marcelolarios/R2D2-Sound-Generator/tree/main
+ ****************************************************************************/
+
+void phrase1() {
+
+  int k = random(1000, 2000);
+  for (int i = 0; i <= random(100, 2000); i++) {
+
+    tone(PIN_BUZZER, k + (-i * 2));
+    delay(random(.9, 2));
+  }
+  for (int i = 0; i <= random(100, 1000); i++) {
+
+    tone(PIN_BUZZER, k + (i * 10));
+    delay(random(.9, 2));
+  }
+}
+
+void phrase2() {
+
+  int k = random(1000, 2000);
+  for (int i = 0; i <= random(100, 2000); i++) {
+
+    tone(PIN_BUZZER, k + (i * 2));
+    delay(random(.9, 2));
+  }
+  for (int i = 0; i <= random(100, 1000); i++) {
+
+    tone(PIN_BUZZER, k + (-i * 10));
+    delay(random(.9, 2));
+  }
+}
+
+// '1000_F_111863797_Ob51Lv7Mz3ep2hk4jzHqpBDtmR4NJC9Y', 128x64px
+const uint8_t Soba[] PROGMEM = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x80,
+  0x09, 0x00, 0x00, 0x00, 0xc0, 0x0c, 0x00, 0x00,
+  0x00, 0x60, 0x06, 0x00, 0x00, 0x00, 0x30, 0x03,
+  0x00, 0x00, 0x00, 0x98, 0x01, 0x00, 0xf8, 0x00,
+  0xcc, 0x00, 0x00, 0xde, 0x03, 0x66, 0x00, 0x80,
+  0x07, 0x0f, 0x33, 0x00, 0xc0, 0x01, 0x9c, 0x19,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0xff,
+  0xff, 0xff, 0x07, 0xe0, 0xff, 0xff, 0xff, 0x07,
+  0xe0, 0xff, 0xff, 0xff, 0x07, 0xe0, 0xff, 0xff,
+  0xff, 0x07, 0xe0, 0xff, 0xff, 0xff, 0x07, 0xc0,
+  0xff, 0xff, 0xff, 0x03, 0xc0, 0xff, 0xff, 0xff,
+  0x03, 0x80, 0xff, 0xff, 0xff, 0x01, 0x80, 0xff,
+  0xff, 0xff, 0x01, 0x00, 0xff, 0xff, 0xff, 0x00,
+  0x00, 0xfe, 0xff, 0x7f, 0x00, 0x00, 0xfc, 0xff,
+  0x3f, 0x00, 0x00, 0xf8, 0xff, 0x1f, 0x00, 0x00,
+  0xf0, 0xff, 0x0f, 0x00, 0x00, 0xc0, 0xff, 0x03,
+  0x00, 0x00, 0x80, 0xff, 0x01, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
 
 // -----------------------------------------------------------------------------------------------
 // Code setup
@@ -192,6 +254,63 @@ void setup(void) {
   Serial.println("Done.");
   delay(100);
 
+  //===========================================================================
+  display.drawBitmap1(0, 0, 128, 64, Soba);
+
+  int K = 2000;
+  switch (random(1, 7)) {
+
+    case 1: phrase1(); break;
+    case 2: phrase2(); break;
+    case 3:
+      phrase1();
+      phrase2();
+      break;
+    case 4:
+      phrase1();
+      phrase2();
+      phrase1();
+      break;
+    case 5:
+      phrase1();
+      phrase2();
+      phrase1();
+      phrase2();
+      phrase1();
+      break;
+    case 6:
+      phrase2();
+      phrase1();
+      phrase2();
+      break;
+  }
+  for (int i = 0; i <= random(3, 9); i++) {
+
+    tone(PIN_BUZZER, K + random(-1700, 2000));
+    delay(random(70, 170));
+    noTone(PIN_BUZZER);
+    delay(random(0, 30));
+  }
+  noTone(PIN_BUZZER);
+  delay(1000);
+  display.clear();
+  display.setFixedFont(ssd1306xled_font6x8);
+  display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
+  display.setFixedFont(ssd1306xled_font8x16);
+  display.printFixed(0, 15, "D", STYLE_NORMAL);
+  display.setTextCursor(12, 8);
+  display.print(dices[virtual_position][0]);
+  if (virtual_position == 6) {
+    display.printFixed(32, 15, "%", STYLE_NORMAL);
+  }
+  display.printFixed(110, 15, "<-", STYLE_NORMAL);
+  display.setFixedFont(ssd1306xled_font6x8);
+  display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
+  display.setFixedFont(ssd1306xled_font8x16);
+  display.printFixed(0, 45, "*", STYLE_NORMAL);
+  display.setTextCursor(12, 40);
+  display.print(dices[virtual_position][1]);
+  //===========================================================================
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -325,19 +444,18 @@ void loop(void) {
     delay(100);
 
   } else {  // If in configuration mode
-    display.clear();
 
     // Checks if rotary encoder button is pressed to change configuration being made
     if (digitalRead(SW) == LOW) {
       delay(100);
       if (digitalRead(SW) == LOW) {
         if (select_dice) {
-          last_virtual_position = virtual_position;
-          virtual_position = dices[last_virtual_position][1];
+          last_select_dice = virtual_position;
+          virtual_position = dices[last_select_dice][1];
         }
         if (number_dice) {
-          dices[last_virtual_position][1] = virtual_position;
-          virtual_position = last_virtual_position;
+          dices[last_select_dice][1] = virtual_position;
+          virtual_position = last_select_dice;
         }
         select_dice = !select_dice;
         number_dice = !select_dice;
@@ -370,44 +488,52 @@ void loop(void) {
 
     // If selecting dices
     if (select_dice) {
-
-      display.setFixedFont(ssd1306xled_font6x8);
-      display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
-      display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 15, "D", STYLE_NORMAL);
-      display.setTextCursor(12, 8);
-      display.print(dices[virtual_position][0]);
-      if (virtual_position == 6) {
-        display.printFixed(32, 15, "%", STYLE_NORMAL);
+      if (last_virtual_position != virtual_position) {
+        display.clear();
+        display.setFixedFont(ssd1306xled_font6x8);
+        display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
+        display.setFixedFont(ssd1306xled_font8x16);
+        display.printFixed(0, 15, "D", STYLE_NORMAL);
+        display.setTextCursor(12, 8);
+        display.print(dices[virtual_position][0]);
+        if (virtual_position == 6) {
+          display.printFixed(32, 15, "%", STYLE_NORMAL);
+        }
+        display.printFixed(110, 15, "<-", STYLE_NORMAL);
+        display.setFixedFont(ssd1306xled_font6x8);
+        display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
+        display.setFixedFont(ssd1306xled_font8x16);
+        display.printFixed(0, 45, "*", STYLE_NORMAL);
+        display.setTextCursor(12, 40);
+        display.print(dices[virtual_position][1]);
+        last_virtual_position = virtual_position;
       }
-      display.setFixedFont(ssd1306xled_font6x8);
-      display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
-      display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 45, "*", STYLE_NORMAL);
-      display.setTextCursor(12, 40);
-      display.print(dices[virtual_position][1]);
     }
 
     // If selecting number os dices
     if (number_dice) {
-
-      display.setFixedFont(ssd1306xled_font6x8);
-      display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
-      display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 15, "D", STYLE_NORMAL);
-      display.setTextCursor(12, 8);
-      display.print(dices[last_virtual_position][0]);
-      if (last_virtual_position == 6) {
-        display.printFixed(32, 15, "%", STYLE_NORMAL);
+      if (last_virtual_position != virtual_position) {
+        display.clear();
+        display.setFixedFont(ssd1306xled_font6x8);
+        display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
+        display.setFixedFont(ssd1306xled_font8x16);
+        display.printFixed(0, 15, "D", STYLE_NORMAL);
+        display.setTextCursor(12, 8);
+        display.print(dices[last_select_dice][0]);
+        if (last_select_dice == 6) {
+          display.printFixed(32, 15, "%", STYLE_NORMAL);
+        }
+        display.setFixedFont(ssd1306xled_font6x8);
+        display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
+        display.setFixedFont(ssd1306xled_font8x16);
+        display.printFixed(0, 45, "*", STYLE_NORMAL);
+        display.setTextCursor(12, 40);
+        display.print(virtual_position);
+        display.printFixed(110, 45, "<-", STYLE_NORMAL);
+        last_virtual_position = virtual_position;
       }
-      display.setFixedFont(ssd1306xled_font6x8);
-      display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
-      display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 45, "*", STYLE_NORMAL);
-      display.setTextCursor(12, 40);
-      display.print(virtual_position);
     }
-    delay(250);
+    lcd_delay(100);
   }
 }
 // -----------------------------------------------------------------------------------------------
