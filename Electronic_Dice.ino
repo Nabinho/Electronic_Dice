@@ -80,7 +80,7 @@ int single_roll = 0;
 
 // Display on timeout variables
 unsigned long last_update = 0;
-int TIMEOUT = 10000;
+int TIMEOUT = 30000;
 
 // Buzzer variables
 const uint8_t PIN_BUZZER = 7;
@@ -139,201 +139,6 @@ void isr() {
     lastInterruptTime = interruptTime;
   }
 }
-// -----------------------------------------------------------------------------------------------
-
-// Notes frequency for startup animation
-#define NOTE_B0 31
-#define NOTE_C1 33
-#define NOTE_CS1 35
-#define NOTE_D1 37
-#define NOTE_DS1 39
-#define NOTE_E1 41
-#define NOTE_F1 44
-#define NOTE_FS1 46
-#define NOTE_G1 49
-#define NOTE_GS1 52
-#define NOTE_A1 55
-#define NOTE_AS1 58
-#define NOTE_B1 62
-#define NOTE_C2 65
-#define NOTE_CS2 69
-#define NOTE_D2 73
-#define NOTE_DS2 78
-#define NOTE_E2 82
-#define NOTE_F2 87
-#define NOTE_FS2 93
-#define NOTE_G2 98
-#define NOTE_GS2 104
-#define NOTE_A2 110
-#define NOTE_AS2 117
-#define NOTE_B2 123
-#define NOTE_C3 131
-#define NOTE_CS3 139
-#define NOTE_D3 147
-#define NOTE_DS3 156
-#define NOTE_E3 165
-#define NOTE_F3 175
-#define NOTE_FS3 185
-#define NOTE_G3 196
-#define NOTE_GS3 208
-#define NOTE_A3 220
-#define NOTE_AS3 233
-#define NOTE_B3 247
-#define NOTE_C4 262
-#define NOTE_CS4 277
-#define NOTE_D4 294
-#define NOTE_DS4 311
-#define NOTE_E4 330
-#define NOTE_F4 349
-#define NOTE_FS4 370
-#define NOTE_G4 392
-#define NOTE_GS4 415
-#define NOTE_A4 440
-#define NOTE_AS4 466
-#define NOTE_B4 494
-#define NOTE_C5 523
-#define NOTE_CS5 554
-#define NOTE_D5 587
-#define NOTE_DS5 622
-#define NOTE_E5 659
-#define NOTE_F5 698
-#define NOTE_FS5 740
-#define NOTE_G5 784
-#define NOTE_GS5 831
-#define NOTE_A5 880
-#define NOTE_AS5 932
-#define NOTE_B5 988
-#define NOTE_C6 1047
-#define NOTE_CS6 1109
-#define NOTE_D6 1175
-#define NOTE_DS6 1245
-#define NOTE_E6 1319
-#define NOTE_F6 1397
-#define NOTE_FS6 1480
-#define NOTE_G6 1568
-#define NOTE_GS6 1661
-#define NOTE_A6 1760
-#define NOTE_AS6 1865
-#define NOTE_B6 1976
-#define NOTE_C7 2093
-#define NOTE_CS7 2217
-#define NOTE_D7 2349
-#define NOTE_DS7 2489
-#define NOTE_E7 2637
-#define NOTE_F7 2794
-#define NOTE_FS7 2960
-#define NOTE_G7 3136
-#define NOTE_GS7 3322
-#define NOTE_A7 3520
-#define NOTE_AS7 3729
-#define NOTE_B7 3951
-#define NOTE_C8 4186
-#define NOTE_CS8 4435
-#define NOTE_D8 4699
-#define NOTE_DS8 4978
-#define REST 0
-
-// Change this to make the song slower or faster
-int timing = 120;
-
-// notes of the moledy followed by the duration.
-// a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
-// !!negative numbers are used to represent dotted notes,
-// so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
-int melody[] = {
-
-  // Dart Vader theme (Imperial March) - Star wars
-  // Score available at https://musescore.com/user/202909/scores/1141521
-  // The tenor saxophone part was used
-
-  NOTE_A5,
-  4,
-  NOTE_A4,
-  -8,
-  NOTE_A4,
-  16,
-  NOTE_A5,
-  4,
-  NOTE_GS5,
-  -8,
-  NOTE_G5,
-  16,  //7
-  NOTE_DS5,
-  16,
-  NOTE_D5,
-  16,
-  NOTE_DS5,
-  8,
-  REST,
-  8,
-  NOTE_A4,
-  8,
-  NOTE_DS5,
-  4,
-  NOTE_D5,
-  -8,
-  NOTE_CS5,
-  16,
-
-  NOTE_C5,
-  16,
-  NOTE_B4,
-  16,
-  NOTE_C5,
-  16,
-  REST,
-  8,
-  NOTE_F4,
-  8,
-  NOTE_GS4,
-  4,
-  NOTE_F4,
-  -8,
-  NOTE_A4,
-  -16,  //9
-  NOTE_C5,
-  4,
-  NOTE_A4,
-  -8,
-  NOTE_C5,
-  16,
-  NOTE_E5,
-  2,
-
-};
-
-// sizeof gives the number of bytes, each int value is composed of two bytes (16 bits)
-// there are two values per note (pitch and duration), so for each note there are four bytes
-int notes = sizeof(melody) / sizeof(melody[0]) / 2;
-
-// this calculates the duration of a whole note in ms
-int wholenote = (60000 * 4) / timing;
-int divider = 0;
-int noteDuration = 0;
-
-// Bitmap for startup animation
-const uint8_t Soba[] PROGMEM = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x80,
-  0x09, 0x00, 0x00, 0x00, 0xc0, 0x0c, 0x00, 0x00,
-  0x00, 0x60, 0x06, 0x00, 0x00, 0x00, 0x30, 0x03,
-  0x00, 0x00, 0x00, 0x98, 0x01, 0x00, 0xf8, 0x00,
-  0xcc, 0x00, 0x00, 0xde, 0x03, 0x66, 0x00, 0x80,
-  0x07, 0x0f, 0x33, 0x00, 0xc0, 0x01, 0x9c, 0x19,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0xff,
-  0xff, 0xff, 0x07, 0xe0, 0xff, 0xff, 0xff, 0x07,
-  0xe0, 0xff, 0xff, 0xff, 0x07, 0xe0, 0xff, 0xff,
-  0xff, 0x07, 0xe0, 0xff, 0xff, 0xff, 0x07, 0xc0,
-  0xff, 0xff, 0xff, 0x03, 0xc0, 0xff, 0xff, 0xff,
-  0x03, 0x80, 0xff, 0xff, 0xff, 0x01, 0x80, 0xff,
-  0xff, 0xff, 0x01, 0x00, 0xff, 0xff, 0xff, 0x00,
-  0x00, 0xfe, 0xff, 0x7f, 0x00, 0x00, 0xfc, 0xff,
-  0x3f, 0x00, 0x00, 0xf8, 0xff, 0x1f, 0x00, 0x00,
-  0xf0, 0xff, 0x0f, 0x00, 0x00, 0xc0, 0xff, 0x03,
-  0x00, 0x00, 0x80, 0xff, 0x01, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
 
 // -----------------------------------------------------------------------------------------------
 // Code setup
@@ -387,38 +192,6 @@ void setup(void) {
   Serial.println("Done.");
   delay(100);
 
-  // =========================================================================
-  // Startup animation
-  display.drawBitmap1(0, 0, 128, 64, Soba);
-
-  // iterate over the notes of the melody.
-  // Remember, the array is twice the number of notes (notes + durations)
-  for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
-
-    // calculates the duration of each note
-    divider = melody[thisNote + 1];
-
-    if (divider > 0) {
-      // regular note, just proceed
-      noteDuration = (wholenote) / divider;
-    } else if (divider < 0) {
-      // dotted notes are represented with negative durations!!
-      noteDuration = (wholenote) / abs(divider);
-      noteDuration *= 1.5;  // increases the duration in half for dotted notes
-    }
-
-    // we only play the note for 90% of the duration, leaving 10% as a pause
-    tone(PIN_BUZZER, melody[thisNote], noteDuration * 0.9);
-
-    // Wait for the specief duration before playing the next note.
-    delay(noteDuration);
-
-    // stop the waveform generation before the next note.
-    noTone(PIN_BUZZER);
-  }
-  display.clear();
-  delay(500);
-  // =========================================================================
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -467,15 +240,15 @@ void loop(void) {
         display.setFixedFont(ssd1306xled_font6x8);
         display.printFixed(0, 0, "Result single D20:", STYLE_NORMAL);
         display.setFixedFont(ssd1306xled_font8x16);
-        display.printFixed(0, 10, "*", STYLE_NORMAL);
-        display.setTextCursor(15, 10);
+        display.printFixed(0, 15, "*", STYLE_NORMAL);
+        display.setTextCursor(12, 8);
         display.print(single_roll);
 
         display.setFixedFont(ssd1306xled_font6x8);
         display.printFixed(0, 35, "Result all dices:", STYLE_NORMAL);
         display.setFixedFont(ssd1306xled_font8x16);
-        display.printFixed(0, 40, "*", STYLE_NORMAL);
-        display.setTextCursor(15, 40);
+        display.printFixed(0, 45, "*", STYLE_NORMAL);
+        display.setTextCursor(12, 40);
         display.print(last_sum_results);
 
         // Does nothing until sensor is released
@@ -527,15 +300,15 @@ void loop(void) {
       display.setFixedFont(ssd1306xled_font6x8);
       display.printFixed(0, 0, "Result single D20:", STYLE_NORMAL);
       display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 10, "*", STYLE_NORMAL);
-      display.setTextCursor(15, 10);
+      display.printFixed(0, 15, "*", STYLE_NORMAL);
+      display.setTextCursor(12, 8);
       display.print(single_roll);
 
       display.setFixedFont(ssd1306xled_font6x8);
       display.printFixed(0, 35, "Result all dices:", STYLE_NORMAL);
       display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 40, "*", STYLE_NORMAL);
-      display.setTextCursor(15, 40);
+      display.printFixed(0, 45, "*", STYLE_NORMAL);
+      display.setTextCursor(12, 40);
       display.print(last_sum_results);
 
       // Resets sum of results
@@ -564,7 +337,7 @@ void loop(void) {
         }
         if (number_dice) {
           dices[last_virtual_position][1] = virtual_position;
-          virtual_position = 0;
+          virtual_position = last_virtual_position;
         }
         select_dice = !select_dice;
         number_dice = !select_dice;
@@ -601,17 +374,17 @@ void loop(void) {
       display.setFixedFont(ssd1306xled_font6x8);
       display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
       display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 10, "D", STYLE_NORMAL);
-      display.setTextCursor(15, 10);
+      display.printFixed(0, 15, "D", STYLE_NORMAL);
+      display.setTextCursor(12, 8);
       display.print(dices[virtual_position][0]);
       if (virtual_position == 6) {
-        display.printFixed(35, 10, "%", STYLE_NORMAL);
+        display.printFixed(32, 15, "%", STYLE_NORMAL);
       }
       display.setFixedFont(ssd1306xled_font6x8);
       display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
       display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 40, "*", STYLE_NORMAL);
-      display.setTextCursor(15, 40);
+      display.printFixed(0, 45, "*", STYLE_NORMAL);
+      display.setTextCursor(12, 40);
       display.print(dices[virtual_position][1]);
     }
 
@@ -621,20 +394,20 @@ void loop(void) {
       display.setFixedFont(ssd1306xled_font6x8);
       display.printFixed(0, 0, "Configuring dice:", STYLE_NORMAL);
       display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 10, "D", STYLE_NORMAL);
-      display.setTextCursor(15, 10);
+      display.printFixed(0, 15, "D", STYLE_NORMAL);
+      display.setTextCursor(12, 8);
       display.print(dices[last_virtual_position][0]);
       if (last_virtual_position == 6) {
-        display.printFixed(35, 10, "%", STYLE_NORMAL);
+        display.printFixed(32, 15, "%", STYLE_NORMAL);
       }
       display.setFixedFont(ssd1306xled_font6x8);
       display.printFixed(0, 35, "Number of dices:", STYLE_NORMAL);
       display.setFixedFont(ssd1306xled_font8x16);
-      display.printFixed(0, 40, "*", STYLE_NORMAL);
-      display.setTextCursor(15, 40);
+      display.printFixed(0, 45, "*", STYLE_NORMAL);
+      display.setTextCursor(12, 40);
       display.print(virtual_position);
     }
-    delay(500);
+    delay(250);
   }
 }
 // -----------------------------------------------------------------------------------------------
